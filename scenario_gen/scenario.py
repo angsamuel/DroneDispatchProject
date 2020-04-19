@@ -78,12 +78,12 @@ class Scenario():
 
         #place drones
         for i in range(0,self.droneNum):
-            self.droneList.append(Drone(i, random.randint(0,len(self.warehouseList)-1), self.droneCapacity, self.droneRange,self))
+            self.droneList.append(Drone(i, "W" + str(random.randint(0,len(self.warehouseList)-1)), self.droneCapacity, self.droneRange,self))
         
         #make requests
         deliverTime = 0
         for i in range(0, self.requestNum):
-            self.requestsList.append((i, self.warehouseList[random.randint(0,len(self.warehouseList)-1)],self.dropoffList[random.randint(0,len(self.dropoffList)-1 )],deliverTime))
+            self.requestsList.append((i, self.warehouseList[random.randint(0,len(self.warehouseList)-1)].idCode ,self.dropoffList[random.randint(0,len(self.dropoffList)-1 )].idCode,deliverTime))
             deliverTime += random.randint(1,self.droneRange) 
 
         

@@ -1,13 +1,70 @@
 
 import math
+from scenario import * 
 class Drone():
     def __init__(self, idCode, locationCode, packageCapacity, droneRange, scenario):
         self.idCode = idCode
         self.locationCode = locationCode
         self.packageCapacity = packageCapacity
+        self.packages = 0
         self.droneRange = droneRange
         self.droneFuel = droneRange
         self.scenario = scenario
+        self.instructions = [] #tuple of instruction, location, time complete
+        self.instructionIndex = 0
+    
+    def ScheduleDelivery(self,pickupName, destinationName):
+        pathToPickup = []
+        lastTime = 0
+        #pathfind to pickup
+        if len(self.instructions) == 0: 
+            pathToPickup = self.GetPath(self.locationCode, pickupName)[0]
+            self.instructions.append(("begin", self.locationCode,0))
+        else:
+            pathToPickup = self.GetPath(self.instructions[-1][1],pickupName)[0]
+            lastTime = self.instructions[-1][2]
+        
+        timeTracker = lastTime
+        
+        #append pickup instructions
+        for i in range(0,len(pathToPickup)):
+            stop = pathToPickup[i]
+            if (self.instructions[-1][1],stop) in self.scenario.edgeWeightLabels:
+                #print(self.instructions[-1][1])
+                timeTracker += self.scenario.edgeWeightLabels[(self.instructions[-1][1],stop)]
+            self.instructions.append((("flyto", stop,timeTracker)))
+
+        #append pickup 
+        self.instructions.append(("pickup", self.instructions[-1][1], timeTracker))
+
+        #pathfind to dropoff
+        pathToDropoff = self.GetPath(self.instructions[-1][1],destinationName)[0]
+
+        #append dropoff instructions
+        for i in range(0,len(pathToDropoff)):
+            stop = pathToDropoff[i]
+            if (self.instructions[-1][1],stop) in self.scenario.edgeWeightLabels:
+                timeTracker += self.scenario.edgeWeightLabels[(self.instructions[-1][1],stop)]
+            self.instructions.append(("flyto", stop,timeTracker))
+        
+        #append dropoff 
+        self.instructions.append(("dropoff", destinationName, timeTracker))
+
+    
+    def UpdateTime(self, time):
+        if self.instructionIndex < len(self.instructions):
+            for i in range(self.instructionIndex, len(self.instructions)-1):
+                if time > self.instructions[i][2]:
+                    self.instructionIndex = i
+    
+    def GetNextLocation(self):
+        if len(self.instructions) == 0:
+            return self.locationCode
+        elif self.instructionIndex == len(self.instructions) - 1:
+            return self.instructions[self.instructionIndex][1]
+        else:
+            return self.instructions[self.instructionIndex+1][1]
+
 
     def h(self,startNode,goalNode):
         if startNode == goalNode:
