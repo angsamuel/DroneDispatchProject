@@ -3,7 +3,7 @@ from utility_bot import *
 
 
 a = Scenario(10,10,10,10,3,1)
-#a.PrintScenario()
+a.PrintScenario()
 
 u = UtilityBot()
 u.Solve(a)

@@ -31,11 +31,8 @@ class UtilityBot():
                     #choose a drone to select
                     possibleDrones[0].ScheduleDelivery(readyOrders[0][1],readyOrders[0][2])
                     readyOrders.pop(0)
-
-
-
-                self.AdvanceTime()
-        return 0
+                else:
+                    self.AdvanceTime()
 
     def PrintResults(self, scenario):
         print("")

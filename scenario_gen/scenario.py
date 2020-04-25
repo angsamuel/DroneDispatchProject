@@ -138,7 +138,7 @@ class Scenario():
             print("( {i}, {wi}, {c}, {a} )".format(i = r.idCode, wi=r.locationCode, c = r.packageCapacity, a = r.droneRange))
         print("\ndelivery requests----------")
         for q in self.requestsList:
-            print("( {i}, {x}, {y}, {t} )".format(i=q[0], x=q[1].idCode, y=q[2].idCode, t=q[3]))
+            print("( {i}, {x}, {y}, {t} )".format(i=q[0], x=q[1], y=q[2], t=q[3]))
         #place starting warehouse
         #place warehouses either within range of another warehouse, or within half range of dropoff position
         #palce dropoff positions within half range of warehouse
