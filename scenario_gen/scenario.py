@@ -122,6 +122,32 @@ class Scenario():
     def DistBetweenLocs(self, loc1, loc2):
         return math.sqrt((loc2.x - loc1.x)*(loc2.x - loc1.x) + (loc2.y - loc1.y)*(loc2.y - loc1.y))
 
+
+    def GetDronesInLocation(self,locationID):
+        dronesInLocation = []
+        for drone in self.GetDrones():
+            if drone.locationCode == locationID:
+                dronesInLocation.append(drone)
+        return dronesInLocation
+    
+    def GetDronesInNeighborhood(self,locationID):
+        neighborsDict = self.graph.neighbors(locationID)
+        neighborDrones = []
+        for drone in self.GetDrones():
+            if drone.locationCode in neighborsDict:
+                neighborDrones.append(drone)
+        return neighborDrones
+    
+    def GetWarehousesInNeighborhood(self, locationID):
+        neighborsDict = self.graph.neighbors(locationID)
+        warehouseNeighbors = []
+        for n in neighborsDict:
+            if "W" in n:
+                warehouseNeighbors.append(n)
+        #print("OOOOO")
+        #print(len(warehouseNeighbors))
+        return warehouseNeighbors
+
     
     def PrintScenario(self):
         print("\n----------------------SCENARIO OVERVIEW----------------------\n")

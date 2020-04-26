@@ -11,9 +11,10 @@ class Drone():
         self.droneFuel = droneRange
         self.scenario = scenario
         self.instructions = [] #tuple of instruction, location, time complete
+        self.packageInteractions = []
         self.instructionIndex = 0
     
-    def ScheduleDelivery(self,pickupName, destinationName):
+    def ScheduleDelivery(self,packageID, pickupName, destinationName):
         pathToPickup = []
         lastTime = 0
         #pathfind to pickup
@@ -27,7 +28,7 @@ class Drone():
         timeTracker = lastTime
         
         #append pickup instructions
-        for i in range(0,len(pathToPickup)):
+        for i in range(1,len(pathToPickup)):
             stop = pathToPickup[i]
             if (self.instructions[-1][1],stop) in self.scenario.edgeWeightLabels:
                 #print(self.instructions[-1][1])
@@ -35,27 +36,28 @@ class Drone():
             self.instructions.append((("flyto", stop,timeTracker)))
 
         #append pickup 
-        self.instructions.append(("pickup", self.instructions[-1][1], timeTracker))
+        self.packageInteractions.append(("pickup", packageID, timeTracker))
 
         #pathfind to dropoff
         pathToDropoff = self.GetPath(self.instructions[-1][1],destinationName)[0]
 
         #append dropoff instructions
-        for i in range(0,len(pathToDropoff)):
+        for i in range(1,len(pathToDropoff)):
             stop = pathToDropoff[i]
             if (self.instructions[-1][1],stop) in self.scenario.edgeWeightLabels:
                 timeTracker += self.scenario.edgeWeightLabels[(self.instructions[-1][1],stop)]
             self.instructions.append(("flyto", stop,timeTracker))
         
         #append dropoff 
-        self.instructions.append(("dropoff", destinationName, timeTracker))
+        self.packageInteractions.append(("dropoff", packageID, timeTracker))
 
     
     def UpdateTime(self, time):
         if self.instructionIndex < len(self.instructions):
             for i in range(self.instructionIndex, len(self.instructions)-1):
                 if time > self.instructions[i][2]:
-                    self.instructionIndex = i
+                    self.instructionIndex += 1
+                    self.locationCode = self.instructions[i][1]
     
     def GetNextLocation(self):
         if len(self.instructions) == 0:
@@ -64,6 +66,15 @@ class Drone():
             return self.instructions[self.instructionIndex][1]
         else:
             return self.instructions[self.instructionIndex+1][1]
+
+    def ScheduledToVisitLocation(self, locationID):
+        if instructionIndex >= len(instructions):
+            return False
+        for i in range(instructionIndex,len(instructions)) in self.instructions:
+            if instruction[2] == locationID:
+                return True
+        
+        return False
 
 
     def h(self,startNode,goalNode):
@@ -130,7 +141,7 @@ class Drone():
                                 self.savedDistances[(path[0],n)] = self.pathCosts[-1]
         #print(queue)
         if len(self.queue) < 1:
-            return ([],-1)
+            return ([],1000000)
         
         #choose next node to explore
         minValue = 1000000
