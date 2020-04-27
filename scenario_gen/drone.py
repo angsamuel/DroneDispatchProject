@@ -12,18 +12,25 @@ class Drone():
         self.scenario = scenario
         self.instructions = [] #tuple of instruction, location, time complete
         self.packageInteractions = []
+        self.baseTime = 0
         self.instructionIndex = 0
+        self.deliveryIndex = 0
     
     def ScheduleDelivery(self,packageID, pickupName, destinationName):
+        self.packages += 1
         pathToPickup = []
-        lastTime = 0
+        lastTime = self.baseTime
+
+        
         #pathfind to pickup
         if len(self.instructions) == 0: 
             pathToPickup = self.GetPath(self.locationCode, pickupName)[0]
-            self.instructions.append(("begin", self.locationCode,0))
-        else:
+            self.instructions.append(("begin", self.locationCode,self.baseTime))
+        elif self.instructionIndex < len(self.instructions):
             pathToPickup = self.GetPath(self.instructions[-1][1],pickupName)[0]
             lastTime = self.instructions[-1][2]
+        else:
+            pathToPickup = self.GetPath(self.instructions[-1][1],pickupName)[0]
         
         timeTracker = lastTime
         
@@ -51,13 +58,19 @@ class Drone():
         #append dropoff 
         self.packageInteractions.append(("dropoff", packageID, timeTracker))
 
-    
-    def UpdateTime(self, time):
+    #add a way to remove packages
+    def UpdateTime(self, time):            
         if self.instructionIndex < len(self.instructions):
             for i in range(self.instructionIndex, len(self.instructions)-1):
                 if time > self.instructions[i][2]:
                     self.instructionIndex += 1
                     self.locationCode = self.instructions[i][1]
+        for i in range(self.deliveryIndex,len(self.packageInteractions)):
+            if self.packageInteractions[i][2] < time and self.packageInteractions[i][0] == "dropoff":
+                self.deliveryIndex = i+1
+                self.packages -= 1
+
+        self.baseTime = time
     
     def GetNextLocation(self):
         if len(self.instructions) == 0:
@@ -68,12 +81,11 @@ class Drone():
             return self.instructions[self.instructionIndex+1][1]
 
     def ScheduledToVisitLocation(self, locationID):
-        if instructionIndex >= len(instructions):
+        if self.instructionIndex >= len(self.instructions):
             return False
-        for i in range(instructionIndex,len(instructions)) in self.instructions:
-            if instruction[2] == locationID:
+        for i in range(self.instructionIndex,len(self.instructions)):
+            if self.instructions[i][1] == locationID:
                 return True
-        
         return False
 
 

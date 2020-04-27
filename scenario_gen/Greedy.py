@@ -36,17 +36,19 @@ def Bidding (package_list,picked_packages,drone_debt,num_drones,drone_locations,
  Costs = []
  drone_winnings =[[0],[0]]
  max_winnings = len(picked_packages)
+ #print(picked_packages)
  for j in range(len(picked_packages)):
-  element1 = picked_packages[j][1].idCode
-  element2 = picked_packages[j][2].idCode
+  element1 = picked_packages[j][1]
+  element2 = picked_packages[j][2]
   for i in range(len(picked_packages)):
-   if (element1 != picked_packages[i][1].idCode or element2 != picked_packages[i][2].idCode):
+   if (element1 != picked_packages[i][1] or element2 != picked_packages[i][2]):
     result = False
  for j in range(len(picked_packages)):
   for i in range(num_drones):
    Drone = a.GetDrones()[i]
-   Cost = Drone.GetPath(drone_locations[i].idCode,picked_packages[j][1].idCode)[1]
-   Cost = Cost + Drone.GetPath(picked_packages[j][1].idCode,picked_packages[j][2].idCode)[1]
+   #print(drone_locations[i],picked_packages[j][1])
+   Cost = Drone.GetPath(drone_locations[i],picked_packages[j][1])[1]
+   Cost = Cost + Drone.GetPath(picked_packages[j][1],picked_packages[j][2])[1]
    Cost = Cost  + drone_debt[i]
    Costs.append(Cost)
   Winner = min(Costs)
@@ -54,8 +56,8 @@ def Bidding (package_list,picked_packages,drone_debt,num_drones,drone_locations,
   if (result == False):
    drone_winnings[index_value].append(picked_packages[j])
    drone_queue[index_value].append(picked_packages[j])
-   dronepickup[index_value].append(picked_packages[j][1].idCode)
-   dronedropoff[index_value].append(picked_packages[j][2].idCode)
+   dronepickup[index_value].append(picked_packages[j][1])
+   dronedropoff[index_value].append(picked_packages[j][2])
    drone_debt[index_value] = Winner
    drone_locations[index_value] = picked_packages[index_value][2]
    
@@ -65,9 +67,12 @@ def Bidding (package_list,picked_packages,drone_debt,num_drones,drone_locations,
    for j in range(len(picked_packages)):
     drone_winnings[index_value].append(picked_packages[j])
     drone_queue[index_value].append(picked_packages[j])
-    dronepickup[index_value].append(picked_packages[j][1].idCode)
-    dronedropoff[index_value].append(picked_packages[j][2].idCode)
+    dronepickup[index_value].append(picked_packages[j][1])
+    dronedropoff[index_value].append(picked_packages[j][2])
    drone_debt[index_value] = Winner
+   temp1 = int(drone_winnings[index_value][-1][3])
+   temp2 = int(drone_winnings[index_value][1][3])
+   drone_debt[index_value] = drone_debt[index_value]+ temp1 - temp2
    drone_locations[index_value] = picked_packages[index_value][2]
    break;
   Costs = []
@@ -76,16 +81,19 @@ def Bidding (package_list,picked_packages,drone_debt,num_drones,drone_locations,
  for i in range(num_drones):
   if (len(drone_winnings[i]) <= len(picked_packages) and result != True):
    for j in range(len(package_list)):
-    if(dronepickup[i][-1] == package_list[j][1].idCode and dronedropoff[i][-1] == package_list[j][2].idCode and(len(drone_winnings[i]) < max_winnings+1)):
-     drone_winnings[index_value].append(package_list[j])
-     drone_queue[index_value].append(package_list[j])
-     dronepickup[index_value].append(package_list[j][1].idCode)
-     dronedropoff[index_value].append(package_list[j][2].idCode)
+    if(dronepickup[i][-1] == package_list[j][1]and dronedropoff[i][-1] == package_list[j][2] and(len(drone_winnings[i]) <= max_winnings+1)):
+     drone_winnings[i].append(package_list[j])
+     drone_queue[i].append(package_list[j])
+     dronepickup[i].append(package_list[j][1])
+     dronedropoff[i].append(package_list[j][2])
+     temp1 = int(drone_winnings[i][-1][3])
+     temp2 = int(drone_winnings[i][1][3])
+     drone_debt[i] = drone_debt[i] + temp1 - temp2
      package_list.pop(j)
      break
  #print("Drone pickup 1 ",dronepickup[0]," ",dronepickup[1])
  #print("Drone dropoff 1 ",dronedropoff[0]," ",dronedropoff[1])
- #print("Dronel 1 ",drone_locations[0].idCode," Dronel 2 ",drone_locations[1].idCode)
+ #print("Dronel 1 ",drone_locations[0]," Dronel 2 ",drone_locations[1])
  #print("Dronec 1 ",drone_debt[0]," Dronec 2 ",drone_debt[1])
  #print("Droneq 1 ",drone_queue[0])
  #print("Droneq 2 ",drone_queue[1])
@@ -114,7 +122,7 @@ list_array2 = np.asarray(a.requestsList)
 for i in list_array2[:]:
  package_list.append(i)
 for i in range(num_drones):
- drone_locations.append(a.warehouseList[i])
+ drone_locations.append(a.warehouseList[i].idCode)
 while(numpackages > 0):
  picked_packages = PriorityPackage(package_list,max_carry)
  drone_debt, drone_locations,drone_queue,drone_pickup,drone_dropoff,package_list = Bidding(package_list,picked_packages,drone_debt,num_drones,drone_locations,drone_queue,drone_pickup,drone_dropoff)
@@ -122,3 +130,7 @@ while(numpackages > 0):
   
 diff = drone_debt[0] + drone_debt[1]
 print("Distance ",diff)
+print("Drone 0 Debt",drone_debt[0])
+print("Drone 1 Debt",drone_debt[1])
+print("Droneq 1 ",drone_queue[0])
+print("Droneq 2 ",drone_queue[1])
