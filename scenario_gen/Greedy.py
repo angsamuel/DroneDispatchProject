@@ -113,9 +113,9 @@ a.PrintScenario()
 numpackages = len(a.GetRequests())
 picked_packages = []
 drone_locations = []
-drone_queue = [[],[]]
-drone_pickup = [[0],[0]]
-drone_dropoff = [[0],[0]]
+drone_queue = [[]]*num_drones
+drone_pickup = [[]]*num_drones
+drone_dropoff = [[]]*num_drones
 drone_debt = [0]*num_drones
 package_list = []
 list_array2 = np.asarray(a.requestsList)
