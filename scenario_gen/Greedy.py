@@ -121,6 +121,10 @@ package_list = []
 list_array2 = np.asarray(a.requestsList)
 for i in list_array2[:]:
  package_list.append(i)
+ 
+for i in range(num_drones):
+ drone_locations.append(a.droneList[1].locationCode)
+
 if len(a.warehouseList)==1:
  for i in range(num_drones):
   drone_locations.append(a.warehouseList[0].idCode)
