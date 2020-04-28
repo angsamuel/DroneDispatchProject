@@ -34,7 +34,7 @@ def PriorityPackage (package_list,max_carry):
 def Bidding (package_list,picked_packages,drone_debt,num_drones,drone_locations,drone_queue,dronepickup,dronedropoff):
  result = True;
  Costs = []
- drone_winnings =[[0],[0]]
+ drone_winnings =[[0]]*num_drones
  max_winnings = len(picked_packages)
  #print(picked_packages)
  for j in range(len(picked_packages)):
@@ -73,7 +73,10 @@ def Bidding (package_list,picked_packages,drone_debt,num_drones,drone_locations,
    temp1 = int(drone_winnings[index_value][-1][3])
    temp2 = int(drone_winnings[index_value][1][3])
    drone_debt[index_value] = drone_debt[index_value]+ temp1 - temp2
-   drone_locations[index_value] = picked_packages[index_value][2]
+   if len(picked_packages) == 1:
+    drone_locations[index_value] = picked_packages[0][2]
+   else:
+    drone_locations[index_value] = picked_packages[index_value][2]
    break;
   Costs = []
  #print(drone_winnings)
@@ -102,7 +105,7 @@ def Bidding (package_list,picked_packages,drone_debt,num_drones,drone_locations,
 
 num_warhouses = 2
 num_dropoffs = 2
-num_drones = 2
+num_drones = 3
 num_packages = 10
 fuelrange = 3
 max_carry = 3
@@ -125,12 +128,6 @@ for i in list_array2[:]:
 for i in range(num_drones):
  drone_locations.append(a.droneList[1].locationCode)
 
-if len(a.warehouseList)==1:
- for i in range(num_drones):
-  drone_locations.append(a.warehouseList[0].idCode)
-else:
- for i in range(num_drones):
-  drone_locations.append(a.warehouseList[i].idCode)
 while(numpackages > 0):
  picked_packages = PriorityPackage(package_list,max_carry)
  drone_debt, drone_locations,drone_queue,drone_pickup,drone_dropoff,package_list = Bidding(package_list,picked_packages,drone_debt,num_drones,drone_locations,drone_queue,drone_pickup,drone_dropoff)
@@ -140,5 +137,6 @@ diff = drone_debt[0] + drone_debt[1]
 print("Distance ",diff)
 print("Drone 0 Debt",drone_debt[0])
 print("Drone 1 Debt",drone_debt[1])
+print("Drone 1 Debt",drone_debt[2])
 print("Droneq 1 ",drone_queue[0])
 print("Droneq 2 ",drone_queue[1])
