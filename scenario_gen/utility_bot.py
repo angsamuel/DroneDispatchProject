@@ -36,7 +36,7 @@ class UtilityBot():
                     
                     bestDrone = droneEvaluationList[0][0]
                     minCost = droneEvaluationList[0][1]
-                    print(minCost)
+                    #print(minCost)
                     for pair in droneEvaluationList:
                         if pair[1] < minCost:
                             bestDrone = pair[0]
@@ -89,12 +89,12 @@ class UtilityBot():
             distance = drone.GetPath(drone.locationCode, pickupID)[1]
             if drone.ScheduledToVisitLocation(dropoffID):
                 distance += 0 #add difference between min path to object time difference
-                distToPickup = drone.timeBetween(drone.locationID, pickupID)
+                distToPickup = drone.TimeBetween(drone.locationCode, pickupID)
                 diff = drone.TimeBetween(pickupID,dropoffID) - drone.GetPath(pickupID,dropoffID)[1]
                 distance = distToPickup + diff
             else:
-                distace += 0 #add difference between min path and distance of remaining path plus min distance from last node to objective 
-                distToPickup = drone.timeBetween(drone.locationID, pickupID)
+                distance += 0 #add difference between min path and distance of remaining path plus min distance from last node to objective 
+                distToPickup = drone.TimeBetween(drone.locationCode, pickupID)
                 diff = (drone.TimeBetween(pickupID,drone.instructions[-1][1]) + drone.GetPath(drone.instructions[-1][1], dropoffID)[1])  - drone.GetPath(pickupID,dropoffID)
                 distance = distToPickup + diff
         #else:

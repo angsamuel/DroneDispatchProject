@@ -168,7 +168,7 @@ class Drone():
 
 
 
-    def TimeBetween(startID, endID):
+    def TimeBetween(self, startID, endID):
         startTime = -1.0
         endTime = -1.0
         for i in range(self.instructionIndex,len(self.instructions)):
