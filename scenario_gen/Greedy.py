@@ -121,8 +121,12 @@ package_list = []
 list_array2 = np.asarray(a.requestsList)
 for i in list_array2[:]:
  package_list.append(i)
-for i in range(num_drones):
- drone_locations.append(a.warehouseList[i].idCode)
+if len(a.warehouseList)==1:
+ for i in range(num_drones):
+  drone_locations.append(a.warehouseList[0].idCode)
+else:
+ for i in range(num_drones):
+  drone_locations.append(a.warehouseList[i].idCode)
 while(numpackages > 0):
  picked_packages = PriorityPackage(package_list,max_carry)
  drone_debt, drone_locations,drone_queue,drone_pickup,drone_dropoff,package_list = Bidding(package_list,picked_packages,drone_debt,num_drones,drone_locations,drone_queue,drone_pickup,drone_dropoff)
