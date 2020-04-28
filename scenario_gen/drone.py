@@ -165,4 +165,54 @@ class Drone():
                 minValue = minValue
                 minDex = i
         return self.AStar(self.queue[minDex], goalNodeName, self.pathCosts[i],self.pathFuel[minDex])
+
+
+
+    def TimeBetween(startID, endID):
+        startTime = -1.0
+        endTime = -1.0
+        for i in range(self.instructionIndex,len(self.instructions)):
+            if startTime == -1.0:
+                if self.instructions[i][1] == startID:
+                    startTime = self.instructions[i][2]
+            
+            if endTime == -1.0 and startTime != -1.0:
+                if self.instructions[i][1] == endID:
+                    endTime = self.instruction[i][2]
+                    break
+        
+        return endTime - startTime
+    
+
+    def InsertPackageInteraction(self, interaction):
+        index = 0
+        for i in range(0,len(self.packageInteractions)):
+            if self.packageInteractions[i][2] > interaction[2]:
+                index = i
+                break
+        self.packageInteractions.insert(index,interaction)
+
+            
+
+    def InsertDelivery(self,packageID, pickupName, destinationName):
+        #go through and insert pickup instruction
+        for i in range(self.instructionIndex, len(self.instructions)):
+            if instructions[i][1] == pickupName:
+                self.InsertPackageInteraction(("pickup", packageID, instructions[i][2]))
+
+        #go through and insert dropoff instruction 
+        if (ScheduledToVisitLocation(destinationName)):
+            for i in range(self.instructionIndex, len(self.instructions)):
+                if instructions[i][1] == destinationName:
+                    self.InsertPackageInteraction(("dropoff", packageID, instructions[i][2]))
+        else: #or schedule a dropoff instruction
+            ScheduleDelivery(packageID,self.instructions[-1][1],destinationName)
+            for inst in self.packageInteractions:
+                if inst[1] == packageID and inst[0] == "pickup":
+                    self.packageInteractions.remove(inst)
+                    break
+       
+
+
+
    

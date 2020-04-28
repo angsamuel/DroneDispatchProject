@@ -28,24 +28,26 @@ class UtilityBot():
                     if self.DroneCanDeliver(drone, nextOrder[1]):
                         possibleDrones.append(drone)
                 
-
-                #print("WOW")
                 if len(possibleDrones) > 0:
                     #choose a drone to select
                     droneEvaluationList = [] #gonna store this as (drone, score)
                     for pdrone in possibleDrones:
-                        droneEvaluationList.append((pdrone,self.UtilityHit(pdrone,nextOrder[1],self.scenario)))
+                        droneEvaluationList.append((pdrone,self.UtilityHit(pdrone,nextOrder[1],nextOrder[2],self.scenario)))
                     
                     bestDrone = droneEvaluationList[0][0]
                     minCost = droneEvaluationList[0][1]
                     print(minCost)
                     for pair in droneEvaluationList:
                         if pair[1] < minCost:
-                            minDrone = pair[0]
+                            bestDrone = pair[0]
                             minCost = pair[1]
 
 
-                    bestDrone.ScheduleDelivery(readyOrders[0][0],readyOrders[0][1],readyOrders[0][2])
+                    if bestDrone.packages == 0:
+                    
+                        bestDrone.ScheduleDelivery(readyOrders[0][0],readyOrders[0][1],readyOrders[0][2])
+                    else:
+                        bestDrone.InsertDelivery(readyOrders[0][0], readyOrders[0][1], readyOrders[0][2])
                     readyOrders.remove(nextOrder)
             self.AdvanceTime(scenario)
 
@@ -58,7 +60,7 @@ class UtilityBot():
             return True
         
         #if the package location exists in drones instructions then return true
-        if drone.ScheduledToVisitLocation(packageLocationID):
+        if drone.ScheduledToVisitLocation(packageLocationID) and drone.packages < drone.packageCapacity:
             return True
         return False
 
@@ -69,8 +71,8 @@ class UtilityBot():
         for drone in scenario.GetDrones():
             drone.UpdateTime(self.timeStep)
     
-    def UtilityHit(self,drone,pickupID,scenario):
-        if drone.packages > 0:
+    def UtilityHit(self,drone,pickupID,dropoffID,scenario):
+        if drone.packages >= drone.packageCapacity:
             return 1000000
         totalDrones = len(scenario.GetDrones())
         dronesInLocation =  len(scenario.GetDronesInLocation(drone.locationCode))
@@ -81,10 +83,25 @@ class UtilityBot():
         #print(dronesInNeighborhood)
         #print(dronesInLocation)
         distance = 0
-        #if drone.packages == 0:
-        distance = drone.GetPath(drone.locationCode, pickupID)[1]
+        if drone.packages == 0:
+            distance = drone.GetPath(drone.locationCode, pickupID)[1]
+        else:
+            distance = drone.GetPath(drone.locationCode, pickupID)[1]
+            if drone.ScheduledToVisitLocation(dropoffID):
+                distance += 0 #add difference between min path to object time difference
+                distToPickup = drone.timeBetween(drone.locationID, pickupID)
+                diff = drone.TimeBetween(pickupID,dropoffID) - drone.GetPath(pickupID,dropoffID)[1]
+                distance = distToPickup + diff
+            else:
+                distace += 0 #add difference between min path and distance of remaining path plus min distance from last node to objective 
+                distToPickup = drone.timeBetween(drone.locationID, pickupID)
+                diff = (drone.TimeBetween(pickupID,drone.instructions[-1][1]) + drone.GetPath(drone.instructions[-1][1], dropoffID)[1])  - drone.GetPath(pickupID,dropoffID)
+                distance = distToPickup + diff
         #else:
             #distance = drone.PredictDeliveryDistance()
         utilityHit = distance + distance * ((totalDrones/dronesInLocation)+(totalDrones/(2*(1+dronesInNeighborhood)))+(totalWarehouses/(1+warehousesInNeighborhood)))
         return utilityHit
+
+    #def ScheduledUtilityHit(self, drone, pickupID, scenario):
+
 
