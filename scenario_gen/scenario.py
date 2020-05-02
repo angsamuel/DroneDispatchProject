@@ -14,6 +14,7 @@ class Scenario():
         self.droneRange = droneRange
         self.droneCapacity = droneCapacity
         self.GenerateScenario()
+        self.pathDict = dict()
     
     def GetGraph(self):
         return self.graph

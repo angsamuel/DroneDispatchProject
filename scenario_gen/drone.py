@@ -102,6 +102,8 @@ class Drone():
     #returns (path list, path cost)
     #I will later add some memoization to make this more efficient    
     def GetPath(self, startNodeName, goalNodeName):
+        if ((startNodeName,goalNodeName)) in self.scenario.pathDict:
+            return self.scenario.pathDict[(startNodeName,goalNodeName)] 
         self.seenNodes = []
         self.queue = []
         self.pathCosts = []
@@ -110,7 +112,8 @@ class Drone():
 
         self.seenNodes.append(startNodeName)
         self.savedDistances[(startNodeName,startNodeName)] = 0
-        return self.AStar([startNodeName],goalNodeName,0,self.droneFuel)
+        self.scenario.pathDict[(startNodeName,goalNodeName)] = self.AStar([startNodeName],goalNodeName,0,self.droneFuel)
+        return self.scenario.pathDict[(startNodeName,goalNodeName)] 
 
     
     def AStar(self, path, goalNodeName, cost, fuelLeft):
