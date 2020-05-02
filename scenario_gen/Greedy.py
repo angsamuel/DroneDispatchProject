@@ -132,9 +132,8 @@ def Greedy(a,num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_ca
  list_array2 = np.asarray(a.requestsList)
  for i in list_array2[:]:
   package_list.append(i)
- 
  for i in range(num_drones):
-  drone_locations.append(a.droneList[1].locationCode)
+  drone_locations.append(a.droneList[i].locationCode)
   Dict1['totaldistance'][i] = 0
  while(numpackages > 0):
  # print("iteration")
@@ -147,8 +146,8 @@ def Greedy(a,num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_ca
  #print("Drone 0 Debt",drone_debt[0])
  #print("Drone 1 Debt",drone_debt[1])
  #print("Drone 1 Debt",drone_debt[2])
- #print(Dict1['totaldistance'])
- #print(Dict1['jobs'])
+ print(Dict1['totaldistance'])
+ print(Dict1['jobs'])
  return Dict1['totaldistance'], Dict1['jobs']
 
  #print("Droneq 1 ",drone_queue[0])
