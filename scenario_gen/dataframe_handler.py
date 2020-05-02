@@ -3,9 +3,6 @@ from test import *
 import pandas as pd
 pd_ver = pd.__version__
 
-from scenario import *
-from utility_bot import *
-
 def generate_dataframe(request_list, listOfPickupsAndDropoffs):
     '''
     This function pulls out the relevant data for out calculations and stores them in a pandas dataframe.
@@ -35,23 +32,27 @@ def evaluate_trial(df, trial_num):
     average_wait_time = df['Wait Time'].mean()
     return {trial_num : (average_wait_time)}
 
-def run_trials(scenario, num_trials = 10):
+def run_trials(sp1, sp2, sp3, sp4, sp5, sp6 , num_trials = 10):
     '''
     Runs trials.
     Returns pandas dataframe of wait time by trial number.
     '''
-    trials = {}
+    utility_trials = {}
     #Run num_trials trials and store in dictionary
     for trial_num in range(num_trials):
-        (request_list, listOfPickupsAndDropoffs) = run_test(scenario, print_trace=False)
-        df = generate_dataframe(request_list, listOfPickupsAndDropoffs)
-        trials.update(evaluate_trial(df, trial_num))
+        # Pass a fresh scenario to each trial with the same properties
+        #Utility test
+        (request_list, listOfPickupsAndDropoffs) = run_test(Scenario(sp1, sp2, sp3, sp4, sp5, sp6), print_trace=False)
+        df_util = generate_dataframe(request_list, listOfPickupsAndDropoffs)
+        utility_trials.update(evaluate_trial(df_util, trial_num))
+        #Greedy test
+        
 
-    df_trials = pd.DataFrame.from_dict(trials, orient='index', columns=['Mean Wait Time'])
+    df_trials = pd.DataFrame.from_dict(utility_trials, orient='index', columns=['Mean Wait Time'])
     df_trials.index.name = 'Trial #'
     return df_trials
 
-def evaluate_batch(scenario, num_trials=10):
+def evaluate_batch(sp1, sp2, sp3, sp4, sp5, sp6 , num_trials=30):
     '''
     This function will run a batch of num_trials trials. It will print out the average wait times for each trial
     and the overall average wait time across all batches.
@@ -59,9 +60,19 @@ def evaluate_batch(scenario, num_trials=10):
         Pandas version 1.0.0 and later have a new to_markdown function. 
         I've included this check for automatic running in earlier packages.
     '''
-    df_trials = run_trials(scenario, num_trials)
+    df_trials = run_trials(sp1, sp2, sp3, sp4, sp5, sp6 , num_trials)
     if pd_ver[0] != '1':
             print(df)
     else:
         print(df_trials.to_markdown())
-    print('\nTotal Average wait time across {0} trials : {1:.6}'.format( num_trials, df_trials['Mean Wait Time'].mean() ))    
+    print('\nTotal Average wait time across {0} trials : {1:.6}'.format( num_trials, df_trials['Mean Wait Time'].mean() ))  
+
+#Scenario 1: Small Example
+sp1, sp2, sp3, sp4, sp5, sp6 = (10, 30, 5, 50, 10, 3)
+evaluate_batch(sp1, sp2, sp3, sp4, sp5, sp6)
+
+#Scenario 2: Large Example
+#sp1, sp2, sp3, sp4, sp5, sp6 = (100, 300, 30, 200, 10, 10)
+
+#Scenario 3: Low Warehouse
+#sp1, sp2, sp3, sp4, sp5, sp6 = (2,30,10,100,10,2)
