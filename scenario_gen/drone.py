@@ -178,7 +178,7 @@ class Drone():
             
             if endTime == -1.0 and startTime != -1.0:
                 if self.instructions[i][1] == endID:
-                    endTime = self.instruction[i][2]
+                    endTime = self.instructions[i][2]
                     break
         
         return endTime - startTime
