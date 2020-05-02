@@ -1,4 +1,5 @@
 from test import *
+import Greedy
 
 import pandas as pd
 pd_ver = pd.__version__
@@ -46,11 +47,12 @@ def run_trials(sp1, sp2, sp3, sp4, sp5, sp6 , num_trials = 10):
         df_util = generate_dataframe(request_list, listOfPickupsAndDropoffs)
         utility_trials.update(evaluate_trial(df_util, trial_num))
         #Greedy test
+        dist_dict, job_dict = Greedy.Greedy(Scenario(sp1, sp2, sp3, sp4, sp5, sp6), sp1, sp2, sp3, sp4, sp5, sp6)
         
 
-    df_trials = pd.DataFrame.from_dict(utility_trials, orient='index', columns=['Mean Wait Time'])
-    df_trials.index.name = 'Trial #'
-    return df_trials
+    df_utility_trials = pd.DataFrame.from_dict(utility_trials, orient='index', columns=['Mean Wait Time'])
+    df_utility_trials.index.name = 'Trial #'
+    return df_utility_trials
 
 def evaluate_batch(sp1, sp2, sp3, sp4, sp5, sp6 , num_trials=30):
     '''
@@ -62,7 +64,7 @@ def evaluate_batch(sp1, sp2, sp3, sp4, sp5, sp6 , num_trials=30):
     '''
     df_trials = run_trials(sp1, sp2, sp3, sp4, sp5, sp6 , num_trials)
     if pd_ver[0] != '1':
-            print(df)
+            print(df_trials)
     else:
         print(df_trials.to_markdown())
     print('\nTotal Average wait time across {0} trials : {1:.6}'.format( num_trials, df_trials['Mean Wait Time'].mean() ))  

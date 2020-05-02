@@ -31,7 +31,7 @@ def PriorityPackage (package_list,max_carry):
    package_list.pop(0)
  return picked_packages
 
-def Bidding (package_list,picked_packages,drone_debt,num_drones,drone_locations,drone_queue,dronepickup,dronedropoff,Dict1):
+def Bidding (scenario, package_list,picked_packages,drone_debt,num_drones,drone_locations,drone_queue,dronepickup,dronedropoff,Dict1):
  time_entered=0
  time_delivered=0
  total_distance=0
@@ -48,7 +48,7 @@ def Bidding (package_list,picked_packages,drone_debt,num_drones,drone_locations,
     result = False
  for j in range(len(picked_packages)):
   for i in range(num_drones):
-   Drone = a.GetDrones()[i]
+   Drone = scenario.GetDrones()[i]
    #print(drone_locations[i],picked_packages[j][1])
    Cost = Drone.GetPath(drone_locations[i],picked_packages[j][1])[1]
    Cost = Cost + Drone.GetPath(picked_packages[j][1],picked_packages[j][2])[1]
@@ -141,7 +141,7 @@ def Greedy(a,num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_ca
  while(numpackages > 0):
  # print("iteration")
   picked_packages = PriorityPackage(package_list,max_carry)
-  drone_debt, drone_locations,drone_queue,drone_pickup,drone_dropoff,package_list,Dict1 = Bidding(package_list,picked_packages,drone_debt,num_drones,drone_locations,drone_queue,drone_pickup,drone_dropoff,Dict1)
+  drone_debt, drone_locations,drone_queue,drone_pickup,drone_dropoff,package_list,Dict1 = Bidding(a, package_list,picked_packages,drone_debt,num_drones,drone_locations,drone_queue,drone_pickup,drone_dropoff,Dict1)
   numpackages = len(package_list)
   
  #diff = drone_debt[0] + drone_debt[1]+ drone_debt[2]
@@ -149,20 +149,19 @@ def Greedy(a,num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_ca
  #print("Drone 0 Debt",drone_debt[0])
  #print("Drone 1 Debt",drone_debt[1])
  #print("Drone 1 Debt",drone_debt[2])
- print(Dict1['totaldistance'])
- print(Dict1['jobs'])
+ return Dict1['totaldistance'], Dict1['jobs']
  #print("Droneq 1 ",drone_queue[0])
  #print("Droneq 2 ",drone_queue[1])
 #####################################################################
 #Input Parameters for Greedy.py
-num_warhouses = 1
-num_dropoffs = 2
-num_drones = 4
-num_packages = 20
-fuelrange = 3
-max_carry = 2
-a = Scenario(num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_carry)
-a.PrintScenario()
-Greedy(a,num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_carry)
+#num_warhouses = 1
+#num_dropoffs = 2
+#num_drones = 4
+#num_packages = 20
+#fuelrange = 3
+#max_carry = 2
+#a = Scenario(num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_carry)
+#a.PrintScenario()
+#Greedy(a,num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_carry)
 ######################################################################
  
