@@ -95,7 +95,7 @@ class UtilityBot():
             else:
                 distance += 0 #add difference between min path and distance of remaining path plus min distance from last node to objective 
                 distToPickup = drone.TimeBetween(drone.locationCode, pickupID)
-                diff = (drone.TimeBetween(pickupID,drone.instructions[-1][1]) + drone.GetPath(drone.instructions[-1][1], dropoffID)[1])  - drone.GetPath(pickupID,dropoffID)
+                diff = (drone.TimeBetween(pickupID,drone.instructions[-1][1]) + drone.GetPath(drone.instructions[-1][1], dropoffID)[1])  - drone.GetPath(pickupID,dropoffID)[1]
                 distance = distToPickup + diff
         #else:
             #distance = drone.PredictDeliveryDistance()

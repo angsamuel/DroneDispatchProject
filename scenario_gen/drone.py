@@ -197,16 +197,16 @@ class Drone():
     def InsertDelivery(self,packageID, pickupName, destinationName):
         #go through and insert pickup instruction
         for i in range(self.instructionIndex, len(self.instructions)):
-            if instructions[i][1] == pickupName:
-                self.InsertPackageInteraction(("pickup", packageID, instructions[i][2]))
+            if self.instructions[i][1] == pickupName:
+                self.InsertPackageInteraction(("pickup", packageID, self.instructions[i][2]))
 
         #go through and insert dropoff instruction 
-        if (ScheduledToVisitLocation(destinationName)):
+        if (self.ScheduledToVisitLocation(destinationName)):
             for i in range(self.instructionIndex, len(self.instructions)):
-                if instructions[i][1] == destinationName:
-                    self.InsertPackageInteraction(("dropoff", packageID, instructions[i][2]))
+                if self.instructions[i][1] == destinationName:
+                    self.InsertPackageInteraction(("dropoff", packageID, self.instructions[i][2]))
         else: #or schedule a dropoff instruction
-            ScheduleDelivery(packageID,self.instructions[-1][1],destinationName)
+            self.ScheduleDelivery(packageID,self.instructions[-1][1],destinationName)
             for inst in self.packageInteractions:
                 if inst[1] == packageID and inst[0] == "pickup":
                     self.packageInteractions.remove(inst)
