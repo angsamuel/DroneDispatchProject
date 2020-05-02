@@ -1,10 +1,11 @@
 from test import *
 import Greedy
+import copy
 
 import pandas as pd
 pd_ver = pd.__version__
 
-def generate_dataframe(request_list, listOfPickupsAndDropoffs):
+def generate_utility_dataframe(request_list, listOfPickupsAndDropoffs):
     '''
     This function pulls out the relevant data for out calculations and stores them in a pandas dataframe.
     Parameters: 
@@ -25,6 +26,12 @@ def generate_dataframe(request_list, listOfPickupsAndDropoffs):
     df['Wait Time'] = df['Delivery Time'] - df['Arrival Time']
     return df
     
+def calculate_greedy_average(job_dict):
+    job_list = []
+    for job in job_dict.keys():
+        entered_queue, completed, droneId = job_dict[job]
+        job_list.append(completed - entered_queue)
+    return pd.Series(job_list).mean()
 def evaluate_trial(df, trial_num):
     '''
     This function evaluates a single trial by calculating metrics and returning
@@ -39,20 +46,26 @@ def run_trials(sp1, sp2, sp3, sp4, sp5, sp6 , num_trials = 10):
     Returns pandas dataframe of wait time by trial number.
     '''
     utility_trials = {}
+    greedy_trials = {}
     #Run num_trials trials and store in dictionary
     for trial_num in range(num_trials):
+        greedy_scen = Scenario(sp1, sp2, sp3, sp4, sp5, sp6)
+        util_scen = copy.deepcopy(greedy_scen)
         # Pass a fresh scenario to each trial with the same properties
         #Utility test
-        (request_list, listOfPickupsAndDropoffs) = run_test(Scenario(sp1, sp2, sp3, sp4, sp5, sp6), print_trace=False)
-        df_util = generate_dataframe(request_list, listOfPickupsAndDropoffs)
+        (request_list, listOfPickupsAndDropoffs) = run_test(util_scen, print_trace=False)
+        df_util = generate_utility_dataframe(request_list, listOfPickupsAndDropoffs)
         utility_trials.update(evaluate_trial(df_util, trial_num))
         #Greedy test
-        dist_dict, job_dict = Greedy.Greedy(Scenario(sp1, sp2, sp3, sp4, sp5, sp6), sp1, sp2, sp3, sp4, sp5, sp6)
-        
-
+        dist_dict, job_dict = Greedy.Greedy(greedy_scen, sp1, sp2, sp3, sp4, sp5, sp6)
+        greedy_average = calculate_greedy_average(job_dict)
+        greedy_trials.update({trial_num: greedy_average})
     df_utility_trials = pd.DataFrame.from_dict(utility_trials, orient='index', columns=['Mean Wait Time'])
     df_utility_trials.index.name = 'Trial #'
-    return df_utility_trials
+
+    df_greedy_trials = pd.DataFrame.from_dict(greedy_trials, orient='index', columns=['Mean Wait Time'])
+    df_greedy_trials.index.name = 'Trial #'
+    return df_utility_trials, df_greedy_trials
 
 def evaluate_batch(sp1, sp2, sp3, sp4, sp5, sp6 , num_trials=30):
     '''
@@ -62,12 +75,12 @@ def evaluate_batch(sp1, sp2, sp3, sp4, sp5, sp6 , num_trials=30):
         Pandas version 1.0.0 and later have a new to_markdown function. 
         I've included this check for automatic running in earlier packages.
     '''
-    df_trials = run_trials(sp1, sp2, sp3, sp4, sp5, sp6 , num_trials)
-    if pd_ver[0] != '1':
-            print(df_trials)
-    else:
-        print(df_trials.to_markdown())
-    print('\nTotal Average wait time across {0} trials : {1:.6}'.format( num_trials, df_trials['Mean Wait Time'].mean() ))  
+    df_utility_trials, df_greedy_trials = run_trials(sp1, sp2, sp3, sp4, sp5, sp6 , num_trials)
+    print('Greedy Trials')
+    print(df_greedy_trials.to_markdown())
+    print('Utility Trials')
+    print(df_utility_trials.to_markdown())
+    print('\nTotal Average wait time across {0} trials :\nGreedy: {1:.6}\nUtility: {2:.6}'.format( num_trials, df_greedy_trials['Mean Wait Time'].mean(), df_utility_trials['Mean Wait Time'].mean() ))  
 
 #Scenario 1: Small Example
 sp1, sp2, sp3, sp4, sp5, sp6 = (10, 30, 5, 50, 10, 3)

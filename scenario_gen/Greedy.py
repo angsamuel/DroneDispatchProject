@@ -156,14 +156,14 @@ def Greedy(a,num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_ca
 #####################################################################
 
 #Input Parameters for Greedy.py
-num_warhouses = 1
-num_dropoffs = 2
-num_drones = 4
-num_packages = 20
-fuelrange = 3
-max_carry = 2
-a = Scenario(num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_carry)
-a.PrintScenario()
-Dict1,tec = Greedy(a,num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_carry)
+#num_warhouses = 1
+#num_dropoffs = 2
+#num_drones = 4
+#num_packages = 20
+#fuelrange = 3
+#max_carry = 2
+#a = Scenario(num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_carry)
+#a.PrintScenario()
+#Dict1,tec = Greedy(a,num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_carry)
 ######################################################################
  
