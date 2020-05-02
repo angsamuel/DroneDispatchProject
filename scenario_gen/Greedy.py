@@ -8,7 +8,7 @@ def PriorityPackage (package_list,max_carry):
  count=0
  for i in package_list[:]:
   all_packages_p.append(i[3])
- print(all_packages_p)
+ #print(all_packages_p)
  if len(package_list) >= max_carry:
   for i in range(max_carry):
    pick = min(all_packages_p)
@@ -31,10 +31,13 @@ def PriorityPackage (package_list,max_carry):
    package_list.pop(0)
  return picked_packages
 
-def Bidding (package_list,picked_packages,drone_debt,num_drones,drone_locations,drone_queue,dronepickup,dronedropoff):
+def Bidding (package_list,picked_packages,drone_debt,num_drones,drone_locations,drone_queue,dronepickup,dronedropoff,Dict1):
+ time_entered=0
+ time_delivered=0
+ total_distance=0
  result = True;
  Costs = []
- drone_winnings =[[0],[0]]
+ drone_winnings =[[0]]*num_drones
  max_winnings = len(picked_packages)
  #print(picked_packages)
  for j in range(len(picked_packages)):
@@ -58,8 +61,16 @@ def Bidding (package_list,picked_packages,drone_debt,num_drones,drone_locations,
    drone_queue[index_value].append(picked_packages[j])
    dronepickup[index_value].append(picked_packages[j][1])
    dronedropoff[index_value].append(picked_packages[j][2])
+   total_distance = Drone.GetPath(drone_locations[index_value],picked_packages[j][1])[1]+ Drone.GetPath(picked_packages[j][1],picked_packages[j][2])[1]
+   Dict1['totaldistance'][index_value] = Dict1['totaldistance'][index_value] + total_distance
+   Dict1['jobs'][picked_packages[j][0]] = [time_entered,time_delivered,index_value]
+   time_entered = drone_debt[index_value]+int(picked_packages[j][3])
    drone_debt[index_value] = Winner
-   drone_locations[index_value] = picked_packages[index_value][2]
+   time_delivered = drone_debt[index_value]+int(picked_packages[j][3])
+   if len(picked_packages) == 1:
+    drone_locations[index_value] = picked_packages[0][2]
+   else:
+    drone_locations[index_value] = picked_packages[j][2]
    
   #if maximum payload is at all one warehouse and destination, the drone who wins only pays one travel cost 
   if (result == True):
@@ -69,11 +80,20 @@ def Bidding (package_list,picked_packages,drone_debt,num_drones,drone_locations,
     drone_queue[index_value].append(picked_packages[j])
     dronepickup[index_value].append(picked_packages[j][1])
     dronedropoff[index_value].append(picked_packages[j][2])
+   total_distance = Drone.GetPath(drone_locations[index_value],picked_packages[j][1])[1]+ Drone.GetPath(picked_packages[j][1],picked_packages[j][2])[1]
+   time_entered = drone_debt[index_value]+int(picked_packages[j][3])
    drone_debt[index_value] = Winner
+   time_delivered = drone_debt[index_value]+int(picked_packages[j][3])
    temp1 = int(drone_winnings[index_value][-1][3])
    temp2 = int(drone_winnings[index_value][1][3])
+   Dict1['totaldistance'][index_value] = Dict1['totaldistance'][index_value] + total_distance
+   Dict1['jobs'][picked_packages[j][0]] = [time_entered,time_delivered,index_value]
    drone_debt[index_value] = drone_debt[index_value]+ temp1 - temp2
-   drone_locations[index_value] = picked_packages[index_value][2]
+   if len(picked_packages) == 1:
+    drone_locations[index_value] = picked_packages[0][2]
+   else:
+    drone_locations[index_value] = picked_packages[j][2]
+   
    break;
   Costs = []
  #print(drone_winnings)
@@ -98,47 +118,51 @@ def Bidding (package_list,picked_packages,drone_debt,num_drones,drone_locations,
  #print("Droneq 1 ",drone_queue[0])
  #print("Droneq 2 ",drone_queue[1])
  #print("winnings: ",drone_winnings[0]," ",drone_winnings[1])
- return drone_debt,drone_locations,drone_queue,dronepickup,dronedropoff,package_list
+ return drone_debt,drone_locations,drone_queue,dronepickup,dronedropoff,package_list,Dict1
 
-num_warhouses = 2
+def Greedy(a,num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_carry):
+ Dict1 = { 'totaldistance': { },'jobs':{}}
+ index=0
+ numpackages = len(a.GetRequests())
+ picked_packages = []
+ drone_locations = []
+ drone_queue = [[]]*num_drones
+ drone_pickup = [[]]*num_drones
+ drone_dropoff = [[]]*num_drones
+ drone_debt = [0]*num_drones
+ package_list = []
+ list_array2 = np.asarray(a.requestsList)
+ for i in list_array2[:]:
+  package_list.append(i)
+ 
+ for i in range(num_drones):
+  drone_locations.append(a.droneList[1].locationCode)
+  Dict1['totaldistance'][i] = 0
+ while(numpackages > 0):
+ # print("iteration")
+  picked_packages = PriorityPackage(package_list,max_carry)
+  drone_debt, drone_locations,drone_queue,drone_pickup,drone_dropoff,package_list,Dict1 = Bidding(package_list,picked_packages,drone_debt,num_drones,drone_locations,drone_queue,drone_pickup,drone_dropoff,Dict1)
+  numpackages = len(package_list)
+  
+ #diff = drone_debt[0] + drone_debt[1]+ drone_debt[2]
+#print("Distance ",diff)
+ #print("Drone 0 Debt",drone_debt[0])
+ #print("Drone 1 Debt",drone_debt[1])
+ #print("Drone 1 Debt",drone_debt[2])
+ print(Dict1['totaldistance'])
+ print(Dict1['jobs'])
+ #print("Droneq 1 ",drone_queue[0])
+ #print("Droneq 2 ",drone_queue[1])
+#####################################################################
+#Input Parameters for Greedy.py
+num_warhouses = 1
 num_dropoffs = 2
-num_drones = 2
-num_packages = 10
+num_drones = 4
+num_packages = 20
 fuelrange = 3
-max_carry = 3
-index=0
+max_carry = 2
 a = Scenario(num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_carry)
 a.PrintScenario()
-
-numpackages = len(a.GetRequests())
-picked_packages = []
-drone_locations = []
-drone_queue = [[]]*num_drones
-drone_pickup = [[]]*num_drones
-drone_dropoff = [[]]*num_drones
-drone_debt = [0]*num_drones
-package_list = []
-list_array2 = np.asarray(a.requestsList)
-for i in list_array2[:]:
- package_list.append(i)
+Greedy(a,num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_carry)
+######################################################################
  
-for i in range(num_drones):
- drone_locations.append(a.droneList[1].locationCode)
-
-if len(a.warehouseList)==1:
- for i in range(num_drones):
-  drone_locations.append(a.warehouseList[0].idCode)
-else:
- for i in range(num_drones):
-  drone_locations.append(a.warehouseList[i].idCode)
-while(numpackages > 0):
- picked_packages = PriorityPackage(package_list,max_carry)
- drone_debt, drone_locations,drone_queue,drone_pickup,drone_dropoff,package_list = Bidding(package_list,picked_packages,drone_debt,num_drones,drone_locations,drone_queue,drone_pickup,drone_dropoff)
- numpackages = len(package_list)
-  
-diff = drone_debt[0] + drone_debt[1]
-print("Distance ",diff)
-print("Drone 0 Debt",drone_debt[0])
-print("Drone 1 Debt",drone_debt[1])
-print("Droneq 1 ",drone_queue[0])
-print("Droneq 2 ",drone_queue[1])
