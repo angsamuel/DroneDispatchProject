@@ -103,6 +103,7 @@ class Drone():
     #I will later add some memoization to make this more efficient    
     def GetPath(self, startNodeName, goalNodeName):
         if ((startNodeName,goalNodeName)) in self.scenario.pathDict:
+            #print("SAVED PATH")
             return self.scenario.pathDict[(startNodeName,goalNodeName)] 
         self.seenNodes = []
         self.queue = []

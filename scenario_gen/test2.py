@@ -3,7 +3,8 @@ from utility_bot import *
 import sys
 import io
 
-s = Scenario(5,5,1,50,5,2)
+s = Scenario(100,300,30,200,10,10)
+#s = Scenario(5,5,5,5,5000,5)
 u = UtilityBot()
 u.Solve(s)
 
