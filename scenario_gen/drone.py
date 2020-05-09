@@ -16,10 +16,13 @@ class Drone():
         self.instructionIndex = 0
         self.deliveryIndex = 0
     
-    def ScheduleDelivery(self,packageID, pickupName, destinationName):
+    def ScheduleDelivery(self,packageID, pickupName, destinationName, t):
         self.packages += 1
         pathToPickup = []
         lastTime = self.baseTime
+        
+            
+        
 
         
         #pathfind to pickup
@@ -42,6 +45,8 @@ class Drone():
                 timeTracker += self.scenario.edgeWeightLabels[(self.instructions[-1][1],stop)]
             self.instructions.append((("flyto", stop,timeTracker)))
 
+        if timeTracker < t:
+            timeTracker = t
         #append pickup 
         self.packageInteractions.append(("pickup", packageID, timeTracker))
 
@@ -80,12 +85,17 @@ class Drone():
         else:
             return self.instructions[self.instructionIndex+1][1]
 
-    def ScheduledToVisitLocation(self, locationID):
+    def ScheduledToVisitLocation(self, locationID, t):
         if self.instructionIndex >= len(self.instructions):
             return False
         for i in range(self.instructionIndex,len(self.instructions)):
             if self.instructions[i][1] == locationID:
-                return True
+                if self.instructions[i][2] >= t:
+                    print("======")
+                    print(t)
+                    print(self.instructions[i][2])
+                    print("======")
+                    return True
         return False
 
 
@@ -198,19 +208,21 @@ class Drone():
 
             
 
-    def InsertDelivery(self,packageID, pickupName, destinationName):
+    def InsertDelivery(self,packageID, pickupName, destinationName, t):
         #go through and insert pickup instruction
+        ptime = t
+        
         for i in range(self.instructionIndex, len(self.instructions)):
             if self.instructions[i][1] == pickupName:
                 self.InsertPackageInteraction(("pickup", packageID, self.instructions[i][2]))
 
         #go through and insert dropoff instruction 
-        if (self.ScheduledToVisitLocation(destinationName)):
+        if (self.ScheduledToVisitLocation(destinationName,t)):
             for i in range(self.instructionIndex, len(self.instructions)):
                 if self.instructions[i][1] == destinationName:
                     self.InsertPackageInteraction(("dropoff", packageID, self.instructions[i][2]))
         else: #or schedule a dropoff instruction
-            self.ScheduleDelivery(packageID,self.instructions[-1][1],destinationName)
+            self.ScheduleDelivery(packageID,self.instructions[-1][1],destinationName, t)
             for inst in self.packageInteractions:
                 if inst[1] == packageID and inst[0] == "pickup":
                     self.packageInteractions.remove(inst)
