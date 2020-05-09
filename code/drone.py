@@ -91,10 +91,6 @@ class Drone():
         for i in range(self.instructionIndex,len(self.instructions)):
             if self.instructions[i][1] == locationID:
                 if self.instructions[i][2] >= t:
-                    print("======")
-                    print(t)
-                    print(self.instructions[i][2])
-                    print("======")
                     return True
         return False
 

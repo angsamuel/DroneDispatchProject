@@ -146,8 +146,8 @@ def Greedy(a,num_warhouses,num_dropoffs,num_drones,num_packages,fuelrange,max_ca
  #print("Drone 0 Debt",drone_debt[0])
  #print("Drone 1 Debt",drone_debt[1])
  #print("Drone 1 Debt",drone_debt[2])
- print(Dict1['totaldistance'])
- print(Dict1['jobs'])
+ #print(Dict1['totaldistance'])
+ #print(Dict1['jobs'])
  return Dict1['totaldistance'], Dict1['jobs']
 
  #print("Droneq 1 ",drone_queue[0])
