@@ -1,5 +1,6 @@
 HOW TO USE THIS PROJECT
 
+Navigate to the code folder.
 In the terminal type the following:
 
 	python3 evaluation.py
