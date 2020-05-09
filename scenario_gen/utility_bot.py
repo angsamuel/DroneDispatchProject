@@ -8,7 +8,7 @@ class UtilityBot():
         self.timeStep = 0
         ordersList = scenario.requestsList
         #all the orders we need to complete
-        while len(ordersList) > 1:
+        while len(ordersList) > 0:
             readyOrders = []
             #remove all orders ready to complete from list
             for order in ordersList:
